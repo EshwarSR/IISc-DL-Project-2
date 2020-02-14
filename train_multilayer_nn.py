@@ -4,10 +4,10 @@ import torch
 import matplotlib.pyplot as plt
 import scikitplot as skplt
 
-num_epochs = 150
+num_epochs = 250
 evaluate_every = 10
 print_every = 10
-learning_rate = 0.05
+learning_rate = 0.01
 batch_size = 128
 num_classes = 10
 input_size = 28*28
@@ -67,12 +67,7 @@ for model_name, layers in models.items():
     model = torch.nn.Sequential(*layers)
 
     model, train_losses, validation_losses, train_accuracies, validation_accuracies, epoch_ticks, train_y_truth, train_y_pred, validate_y_truth, validate_y_pred = utils.train_evaluate_model(
-        model, num_classes, num_epochs, batch_size, learning_rate, X_train, X_validate, y_train, y_validate, evaluate_every, print_every)
-
-    skplt.metrics.plot_confusion_matrix(
-        train_y_truth, train_y_pred, normalize=True)
-    plt.savefig(model_name + '_cm.png')
-    plt.clf()
+        model_name, model, num_classes, num_epochs, batch_size, learning_rate, X_train, X_validate, y_train, y_validate, evaluate_every, print_every)
 
     metrics["train_loss"][model_name] = train_losses
     metrics["validation_loss"][model_name] = validation_losses
@@ -88,10 +83,6 @@ for model_name, layers in models.items():
     print("Ending Accuracy:", train_accuracies[-1], validation_accuracies[-1])
 
     print("Time taken:", end-start)
-
-    # Saving the model
-    print("Saving the model")
-    torch.save(model.state_dict(), "models/"+model_name+".pt")
 
     # Loading the models
     # model = TheModelClass(*args, **kwargs)

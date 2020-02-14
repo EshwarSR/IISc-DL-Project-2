@@ -6,6 +6,9 @@ from torchvision.datasets import FashionMNIST
 from torchvision import transforms
 from sklearn.model_selection import train_test_split
 import time
+import scikitplot as skplt
+import matplotlib.pyplot as plt
+import os
 
 
 def get_train_valid_data():
@@ -71,7 +74,18 @@ def evaluate(model, X, y, loss_fn, batch_size):
     return acc, loss_meter.avg, all_y_pred, all_y_truth
 
 
-def train_evaluate_model(model, num_classes, num_epochs, batch_size, learning_rate, X_train, X_validate, y_train, y_validate, evaluate_every, print_every):
+def plot_confusion_matrices(model_name, epoch_num, train_y_truth, train_y_pred, validate_y_truth, validate_y_pred):
+    skplt.metrics.plot_confusion_matrix(
+        train_y_truth, train_y_pred, normalize=True)
+    plot_folder = "plots/" + model_name + "/"
+    if not os.path.exists(plot_folder):
+        os.mkdir(plot_folder)
+    plt.savefig(plot_folder + epoch_num + '_cm.png')
+    plt.clf()
+    plt.close()
+
+
+def train_evaluate_model(model_name, model, num_classes, num_epochs, batch_size, learning_rate, X_train, X_validate, y_train, y_validate, evaluate_every, print_every):
 
     loss_fn = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
@@ -114,6 +128,17 @@ def train_evaluate_model(model, num_classes, num_epochs, batch_size, learning_ra
                     model, X_validate, y_validate, loss_fn, batch_size)
                 validation_accuracies.append(validation_acc)
                 validation_losses.append(validation_loss)
+
+                # Writing Confusion matrices
+                plot_confusion_matrices(
+                    model_name, str(epoch+1), train_y_truth, train_y_pred, validate_y_truth, validate_y_pred)
+
+                # Saving the model
+                model_dir = "models/" + model_name + "/"
+                if not os.path.exists(model_dir):
+                    os.mkdir(model_dir)
+                torch.save(model.state_dict(), model_dir +
+                           str(epoch+1) + ".pt")
 
         if epoch % print_every == (print_every - 1):
             epoch_end = time.time()
