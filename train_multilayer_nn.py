@@ -4,11 +4,11 @@ import torch
 import matplotlib.pyplot as plt
 import scikitplot as skplt
 
-num_epochs = 250
-evaluate_every = 10
-print_every = 10
+num_epochs = 500
+evaluate_every = 20
+print_every = 20
 learning_rate = 0.01
-batch_size = 128
+batch_size = 1024
 num_classes = 10
 input_size = 28*28
 
@@ -29,24 +29,29 @@ X_validate = X_validate.reshape(X_validate.shape[0], -1)
 
 # Experiment 1
 models = {
-    "1L_50H_relu": [
-        torch.nn.Linear(input_size, 50),
+    "4L_512H_256H_128H_64H_relu": [
+        torch.nn.Linear(input_size, 512),
         torch.nn.ReLU(),
-        torch.nn.Linear(50, num_classes)
+        torch.nn.Linear(512, 256),
+        torch.nn.ReLU(),
+        torch.nn.Linear(256, 128),
+        torch.nn.ReLU(),
+        torch.nn.Linear(128, 64),
+        torch.nn.ReLU(),
+        torch.nn.Linear(64, num_classes)
     ],
-    "1L_50H_tanh": [
-        torch.nn.Linear(input_size, 50),
-        torch.nn.Tanh(),
-        torch.nn.Linear(50, num_classes)
-    ],
-    "1L_50H_sigmoid": [
-        torch.nn.Linear(input_size, 50),
-        torch.nn.Sigmoid(),
-        torch.nn.Linear(50, num_classes)
-    ],
-    "1L_50H_none": [
-        torch.nn.Linear(input_size, 50),
-        torch.nn.Linear(50, num_classes)
+    "5L_512H_256H_128H_64H_32H_relu": [
+        torch.nn.Linear(input_size, 512),
+        torch.nn.ReLU(),
+        torch.nn.Linear(512, 256),
+        torch.nn.ReLU(),
+        torch.nn.Linear(256, 128),
+        torch.nn.ReLU(),
+        torch.nn.Linear(128, 64),
+        torch.nn.ReLU(),
+        torch.nn.Linear(64, 32),
+        torch.nn.ReLU(),
+        torch.nn.Linear(32, num_classes)
     ]
 }
 
@@ -77,18 +82,9 @@ for model_name, layers in models.items():
     end = time.time()
     print("Starting Loss:", train_losses[0], validation_losses[0])
     print("Ending Loss:", train_losses[-1], validation_losses[-1])
-
     print("Starting Accuracy:", train_accuracies[0], validation_accuracies[0])
-
     print("Ending Accuracy:", train_accuracies[-1], validation_accuracies[-1])
-
     print("Time taken:", end-start)
-
-    # Loading the models
-    # model = TheModelClass(*args, **kwargs)
-    # model.load_state_dict(torch.load(PATH))
-    # model.eval()
-
     print("\n\n")
 
 

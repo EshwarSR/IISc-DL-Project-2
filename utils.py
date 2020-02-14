@@ -81,11 +81,12 @@ def plot_confusion_matrices(model_name, epoch_num, train_y_truth, train_y_pred, 
     if not os.path.exists(plot_folder):
         os.mkdir(plot_folder)
     plt.savefig(plot_folder + epoch_num + '_cm.png')
+    plt.title(model_name)
     plt.clf()
     plt.close()
 
 
-def train_evaluate_model(model_name, model, num_classes, num_epochs, batch_size, learning_rate, X_train, X_validate, y_train, y_validate, evaluate_every, print_every):
+def train_evaluate_model(model_name, model, num_classes, num_epochs, batch_size, learning_rate, X_train, X_validate, y_train, y_validate, evaluate_every, print_every, device=None):
 
     loss_fn = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
@@ -103,6 +104,11 @@ def train_evaluate_model(model_name, model, num_classes, num_epochs, batch_size,
             end = start + batch_size
             x = X_train[start:end]
             y = y_train[start:end]
+
+            # Moving to device if given
+            if device:
+                x.to(device)
+                y.to(device)
 
             optimizer.zero_grad()
 
