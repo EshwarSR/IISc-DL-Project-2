@@ -1,73 +1,90 @@
-import argparse
-import utils
-import torch
+"""
+Code to use the saved models for testing
+"""
+
+import numpy as np
+import pdb
 import os
-repo_path = os.path.dirname(os.path.abspath(__file__))
+from tqdm import tqdm
+
+from matplotlib import pyplot as plt
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+from torch.autograd import Variable
+from torch.utils.data import Dataset, DataLoader
+
+import torchvision
+from torchvision.datasets import FashionMNIST
+from torchvision import transforms
+
+from utils import AverageMeter
 
 
-def write_software_1_output(test_file):
-    # Writing the Software1.txt file
-    with open(test_file, "r") as infile:
-        nums = infile.read().strip().split()
-        nums = [int(item) for item in nums]
+def test(model, testloader, flatten=False):
+    """ Training the model using the given dataloader for 1 epoch.
 
-        with open(repo_path + "/Software1.txt", "w") as outfile:
-            for num in nums:
-                out = utils.rule_output(num)
-                if out == 0:
-                    out_str = "fizz"
-                elif out == 1:
-                    out_str = "buzz"
-                elif out == 2:
-                    out_str = "fizzbuzz"
-                else:
-                    out_str = str(num)
-                outfile.write(out_str+"\n")
+    Input: Model, Dataset, optimizer,
+    """
 
-
-def write_software_2_output(test_file):
-    dataset = utils.InferenceDataset(test_file)
-
-    layers = [
-        torch.nn.Linear(10, 100),
-        torch.nn.Tanh(),
-        torch.nn.Linear(100, 100),
-        torch.nn.Tanh(),
-        torch.nn.Linear(100, 4)
-    ]
-    model = torch.nn.Sequential(*layers)
-    model.load_state_dict(torch.load("model/2L_100H_100H_tanh.pt"))
     model.eval()
-    nums = dataset[:][0]
-    features = dataset[:][1]
-    out = model(features)
-    _, classes = torch.max(out, 1)
-    classes = classes.numpy().tolist()
+    avg_loss = AverageMeter("average-loss")
 
-    with open(repo_path + "/Software2.txt", "w") as outfile:
-        for num, pred_class in zip(nums, classes):
-            if pred_class == 0:
-                out_str = "fizz"
-            elif pred_class == 1:
-                out_str = "buzz"
-            elif pred_class == 2:
-                out_str = "fizzbuzz"
-            else:
-                out_str = str(num)
-            outfile.write(out_str+"\n")
+    y_gt = []
+    y_pred_label = []
+
+    for batch_idx, (img, y_true) in enumerate(testloader):
+        img = Variable(img)
+        if flatten:
+            img = img.reshape(img.shape[0], -1)
+        y_true = Variable(y_true)
+        out = model(img)
+        y_pred = F.softmax(out, dim=1)
+        y_pred_label_tmp = torch.argmax(y_pred, dim=1)
+
+        loss = F.cross_entropy(out, y_true)
+        avg_loss.update(loss, img.shape[0])
+
+        # Add the labels
+        y_gt += list(y_true.numpy())
+        y_pred_label += list(y_pred_label_tmp.numpy())
+
+    return avg_loss.avg, y_gt, y_pred_label
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Main Program')
-    parser.add_argument('-t', '--test-data',
-                        help='Test File', required=True)
-    args = parser.parse_args()
-    print("Reading test data from file:", args.test_data)
 
-    # Writing Software1.txt file
-    write_software_1_output(args.test_data)
-    print("Done writing Software1.txt file")
+    trans_img = transforms.Compose([transforms.ToTensor()])
+    dataset = FashionMNIST("./data/", train=False,
+                           transform=trans_img, download=True)
+    testloader = DataLoader(dataset, batch_size=1024, shuffle=False)
 
-    # Writing Software2.txt file
-    write_software_2_output(args.test_data)
-    print("Done writing Software2.txt file")
+    from final_models import multilayer_model
+    model_MLP = multilayer_model
+    model_MLP.load_state_dict(torch.load(
+        "./models/final_models/5L_512H_256H_128_64H_32H_relu.pt"))
+
+    from final_models import Conv_2L_8_12_2L_128_32_AVG_BN
+    model_conv_net = Conv_2L_8_12_2L_128_32_AVG_BN(10)
+    model_conv_net.load_state_dict(torch.load(
+        "./models/final_models/Conv_2L_8_12_2L_128_32_AVG_BN.pt"))
+
+    loss, gt, pred = test(model_MLP, testloader, flatten=True)
+    with open("multi-layer-net.txt", 'w') as f:
+        f.write("Loss on Test Data : {}\n".format(loss))
+        f.write("Accuracy on Test Data : {}\n".format(
+            np.mean(np.array(gt) == np.array(pred))))
+        f.write("gt_label,pred_label \n")
+        for idx in range(len(gt)):
+            f.write("{},{}\n".format(gt[idx], pred[idx]))
+
+    loss, gt, pred = test(model_conv_net, testloader)
+    with open("convolution-neural-net.txt", 'w') as f:
+        f.write("Loss on Test Data : {}\n".format(loss))
+        f.write("Accuracy on Test Data : {}\n".format(
+            np.mean(np.array(gt) == np.array(pred))))
+        f.write("gt_label,pred_label \n")
+        for idx in range(len(gt)):
+            f.write("{},{}\n".format(gt[idx], pred[idx]))
