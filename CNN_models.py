@@ -2,8 +2,61 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 ################
 # Experiment 1 #
+################
+
+class Conv_1L_8_1L_128_AVG(nn.Module):
+    def __init__(self, n_classes=10):
+        super(Conv_1L_8_1L_128_AVG, self).__init__()
+        self.conv = nn.Sequential(
+            nn.Conv2d(1, 8, kernel_size=5, stride=1,
+                      padding=2),  # (N,8,28,28)
+            nn.ReLU(),
+            nn.AvgPool2d(kernel_size=4, stride=2, padding=2),  # (N,8,15,15)
+        )
+        self.flat_units = 8*15*15
+        self.hidden_units = [128]
+        self.classifier = nn.Sequential(
+            nn.Linear(self.flat_units, self.hidden_units[0]),
+            nn.ReLU(),
+            nn.Linear(self.hidden_units[0], n_classes)
+        )
+
+    def forward(self, x):
+        x = self.conv(x)
+        x = x.view(x.size(0), -1)
+        x = self.classifier(x)
+        return x
+
+
+class Conv_1L_8_1L_128_MAX(nn.Module):
+    def __init__(self, n_classes=10):
+        super(Conv_1L_8_1L_128_MAX, self).__init__()
+        self.conv = nn.Sequential(
+            nn.Conv2d(1, 8, kernel_size=5, stride=1,
+                      padding=2),  # (N,8,28,28)
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=4, stride=2, padding=2),  # (N,8,15,15)
+        )
+        self.flat_units = 8*15*15
+        self.hidden_units = [128]
+        self.classifier = nn.Sequential(
+            nn.Linear(self.flat_units, self.hidden_units[0]),
+            nn.ReLU(),
+            nn.Linear(self.hidden_units[0], n_classes)
+        )
+
+    def forward(self, x):
+        x = self.conv(x)
+        x = x.view(x.size(0), -1)
+        x = self.classifier(x)
+        return x
+
+
+################
+# Experiment 2 #
 ################
 
 
@@ -135,7 +188,7 @@ class Conv_2L_8_12_2L_128_32_MAX_DO(nn.Module):
         return x
 
 ################
-# Experiment 2 #
+# Experiment 3 #
 ################
 
 

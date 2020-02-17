@@ -1,28 +1,21 @@
-## Project 1 - FizzBuzz
+## Project 2 - Classification on FashionMNIST using Multilayer Networks and CNNs
 
 **Aim:** 
 
-Given a number, model should output
-- `fizz` if number divisible by 3
-- `buzz` if number divisible by 5
-- `fizzbuzz` if number divisible by 15
-- `number itself` otherwise
+Train two models for classifying the FashionMNIST data. One model is a multi layer neural network, whereas the second model is a CNN based model.
 
-**Training data:** 
 
-Numbers from 101 to 1000
-
-**Test data:** 
-
-Numbers from 1 to 100
+**Dataset** 
+Dataset used in this project is FashionMNIST.
 
 **Folder description:**
 - `utils.py` contains helper code used in other files
-- `create_dataset.py` creates the `training_data.csv` and `test_data.csv` files, useful for traing the models.
-- `train.py` defines network architectures, trains, tests and saves the models. It also generates the required plots. Used for running multiple experiments.
-- `main.py` can be used to run inferences on new data. It loads the best model and writes 2 files `Software1.txt` (rule based classification) and `Software2.txt` (model based classification).
+- `train_multilayer_nn.py` defines network architectures, trains, validates and saves the multilayer models. It also generates the required plots. Used for running multiple experiments.
+- `CNN_models.py` defines many CNN network architectures used in this project.
+- `train_conv_nn.py` trains, validates and saves the CNN models. It also generates the required plots. Used for running multiple experiments.
+- `main.py` can be used to run inferences on new data. It loads the best models and writes 2 files `multi-layer-net.txt` (output from best multilayer network) and `convolution-neural-net.txt` (output from the best CNN model).
 - `requirements.txt` contains the list of python packages used.
-- `model` folder contains all the trained models
+- `models` folder contains all the trained models
 - `plots` folder contains plots of each experiment
 
 

@@ -29,6 +29,13 @@ X_train, X_validate, y_train, y_validate = utils.get_train_valid_data()
 #####################
 
 # Experiment 1
+models = {
+    "Conv_1L_8_1L_128_AVG": CNN_models.Conv_1L_8_1L_128_AVG(num_classes),
+    "Conv_1L_8_1L_128_MAX": CNN_models.Conv_1L_8_1L_128_MAX(num_classes)
+}
+
+
+# Experiment 2
 # models = {
 #     "Conv_2L_8_12_2L_128_32_AVG_BN": CNN_models.Conv_2L_8_12_2L_128_32_AVG_BN(num_classes),
 #     "Conv_2L_8_12_2L_128_32_AVG_DO": CNN_models.Conv_2L_8_12_2L_128_32_AVG_DO(num_classes),
@@ -36,11 +43,11 @@ X_train, X_validate, y_train, y_validate = utils.get_train_valid_data()
 #     "Conv_2L_8_12_2L_128_32_MAX_DO": CNN_models.Conv_2L_8_12_2L_128_32_MAX_DO(num_classes)
 # }
 
-# Experiment 2
-models = {
-    "Conv_3L_8_12_16_3L_128_64_32_AVG_BN": CNN_models.Conv_3L_8_12_16_3L_128_64_32_AVG_BN(num_classes),
-    "Conv_3L_8_12_16_3L_128_64_32_MAX_BN": CNN_models.Conv_3L_8_12_16_3L_128_64_32_MAX_BN(num_classes)
-}
+# Experiment 3
+# models = {
+#     "Conv_3L_8_12_16_3L_128_64_32_AVG_BN": CNN_models.Conv_3L_8_12_16_3L_128_64_32_AVG_BN(num_classes),
+#     "Conv_3L_8_12_16_3L_128_64_32_MAX_BN": CNN_models.Conv_3L_8_12_16_3L_128_64_32_MAX_BN(num_classes)
+# }
 
 ################################
 # Training & Evaluating Models #
